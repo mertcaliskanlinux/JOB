@@ -1,0 +1,19 @@
+from django.http import HttpResponse
+from django.template import loader
+from django_prometheus import exports
+from prometheus_client import Counter
+
+# Counter metriği tanımlama
+index_requests_total = Counter(
+    'index_requests_total', 'Total number of index requests'
+)
+
+def index(request):
+    # Counter metriğini artırma
+    index_requests_total.inc()
+
+    template = loader.get_template('demo/index.html')
+    return HttpResponse(template.render())
+
+# Django prometheus metriklerini görüntülemek için
+# urlpatterns += [path('metrics/', exports.ExportToDjangoView.as_view())]
