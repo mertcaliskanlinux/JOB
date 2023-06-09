@@ -17,14 +17,21 @@ from django.contrib import admin
 from django.urls import path,include
 from django_prometheus import exports
 from . import views
+from prometheus_client import generate_latest
+from django.http import HttpResponse
 
+
+def metrics(request):
+    # Prometheus scrape endpointi için metrikleri döndürme
+    return HttpResponse(generate_latest(), content_type='text/plain')
 
 urlpatterns = [
     path('', views.index),
+    path('metrics/', metrics, name='metrics'),
     path('prometheus/', include('django_prometheus.urls')),
     path('index/', views.index),
     path('admin/', admin.site.urls),
 ]
 
 
-urlpatterns += [path('metrics/', exports.ExportToDjangoView)]
+
