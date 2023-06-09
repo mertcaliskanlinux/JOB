@@ -1,17 +1,33 @@
 version: '3'
 
 services:
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432 
+
+    restart: always
+
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    networks:
+      - nginx_network
+        
   djangoapp:
     build: .
     volumes:
       - .:/opt/services/djangoapp/src
-      - static_volume:/opt/services/djangoapp/static  # <-- bind the static volume
-      - media_volume:/opt/services/djangoapp/media  # <-- bind the media volume
+      - static_volume:/opt/services/djangoapp/static
+      - media_volume:/opt/services/djangoapp/media
     depends_on:
       - prometheus
+
+    restart: always
+
     networks:
       - nginx_network
-
 
   nginx:
     image: pagespeed/nginx-pagespeed:latest
@@ -19,14 +35,13 @@ services:
       - 80:80
     volumes:
       - ./config/nginx/conf.d:/etc/nginx/conf.d
-      - static_volume:/opt/services/djangoapp/static  # <-- bind the static volume
-      - media_volume:/opt/services/djangoapp/media  # <-- bind the media volume
+      - static_volume:/opt/services/djangoapp/static
+      - media_volume:/opt/services/djangoapp/media
+    restart: always
     depends_on:
       - djangoapp
     networks:
       - nginx_network
-
-  
 
   prometheus:
     image: prom/prometheus
@@ -34,6 +49,9 @@ services:
       - ./prometheus:/etc/prometheus/
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+      
+    restart: always
+    
     ports:
       - "9090:9090"
     networks:
@@ -44,5 +62,6 @@ networks:
     driver: bridge
 
 volumes:
-  static_volume:  # <-- declare the static volume
-  media_volume:  # <-- declare the media volume
+  static_volume:
+  media_volume:
+  postgres_data:  # Declare the postgres_data volume

@@ -27,14 +27,16 @@ services:
     networks:
       - nginx_network
 
-  database1:
-    image: postgres:10
-    env_file:
-      - config/db/database1_env
-    networks:
-      - database1_network
+  db:
+    image: postgres:13
     volumes:
-      - database1_volume:/var/lib/postgresql/data2
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432 
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    networks:
+      - nginx_network
 
 networks:
   nginx_network:

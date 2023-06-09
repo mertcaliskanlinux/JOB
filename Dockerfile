@@ -1,6 +1,16 @@
-# start from an official image
-FROM python:3.7-alpine
+FROM ubuntu:22.04
 
+
+
+# start from an official image
+FROM python:3.10.2-slim-bullseye
+
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK 1
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN pip install --upgrade pip
 # arbitrary location choice: you can change the directory
 RUN mkdir -p /opt/services/djangoapp/src
 WORKDIR /opt/services/djangoapp/src
@@ -13,6 +23,8 @@ RUN pip install pipenv && pipenv install --system
 # copy our project code
 COPY . /opt/services/djangoapp/src
 RUN pip install django-prometheus
+RUN pip install psycopg2-binary
+
 
 RUN cd demo && python3 manage.py collectstatic --no-input -v 2
 

@@ -10,7 +10,8 @@ index_requests_total = Counter('index_requests_total', 'Total number of index re
 def index(request):
     # Counter metriğini artırma
     index_requests_total.inc()
-
+    index_requests_total._get_metric()
+    print(index_requests_total.clear())
     template = loader.get_template('demo/index.html')
 
     return HttpResponse(template.render())
